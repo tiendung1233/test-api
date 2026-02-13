@@ -1,0 +1,5 @@
+node_modules/
+shopee_user_data/
+anticaptcha_key.txt
+captcha_piece.png
+captcha_bg.png

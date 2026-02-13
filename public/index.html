@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopee Affiliate Crawler</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="glass-background"></div>
+
+    <main class="container">
+        <header>
+            <div class="logo">
+                <span class="icon">🚀</span>
+                <h1>Shopee Crawler</h1>
+            </div>
+            <p class="subtitle">Trình trích xuất dữ liệu sản phẩm Affiliate siêu tốc</p>
+        </header>
+
+        <section class="card">
+            <div class="input-group">
+                <input type="text" id="productId" placeholder="Nhập ID sản phẩm (VD: 26776911695)" value="26776911695">
+                <button id="crawlBtn">
+                    <span class="btn-text">Bắt đầu Crawl</span>
+                    <span class="loader"></span>
+                </button>
+            </div>
+            <div class="notice">
+                <p>💡 <strong>Lưu ý:</strong> Khi trình duyệt mở ra, nếu bị hỏi CAPTCHA hoặc Đăng nhập, hãy thao tác thủ
+                    công. Script sẽ tự đợi bạn xong!</p>
+            </div>
+        </section>
+
+        <section id="resultCard" class="card result-card hidden">
+            <h3>🎯 Kết quả trích xuất</h3>
+            <div class="result-content">
+                <div class="result-item highlight">
+                    <span class="label">🔗 Affiliate Link</span>
+                    <span class="value small" id="resAffiliateLink"
+                        style="word-break: break-all; user-select: all;">---</span>
+                </div>
+                <div class="result-item">
+                    <span class="label">📍 URL Trang</span>
+                    <span class="value small" id="resUrl">---</span>
+                </div>
+            </div>
+            <div class="status-bar" id="statusBar">
+                Đang chờ lệnh...
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const crawlBtn = document.getElementById('crawlBtn');
+        const productIdInput = document.getElementById('productId');
+        const resultCard = document.getElementById('resultCard');
+        const statusBar = document.getElementById('statusBar');
+
+        const resAffiliateLink = document.getElementById('resAffiliateLink');
+        const resUrl = document.getElementById('resUrl');
+
+        crawlBtn.addEventListener('click', async () => {
+            const id = productIdInput.value.trim();
+            if (!id) return alert('Vui lòng nhập ID sản phẩm');
+
+            // UI State: Loading
+            crawlBtn.classList.add('loading');
+            crawlBtn.disabled = true;
+            resultCard.classList.remove('hidden');
+            statusBar.textContent = 'Trình duyệt đang khởi động... vui lòng kiểm tra terminal/màn hình';
+            statusBar.className = 'status-bar processing';
+
+            try {
+                const response = await fetch(`/api/crawl?id=${id}`);
+                const data = await response.json();
+
+                if (data.error) {
+                    statusBar.textContent = 'Lỗi: ' + data.error;
+                    statusBar.className = 'status-bar error';
+                } else {
+                    resAffiliateLink.textContent = data.affiliateLink || 'N/A';
+                    resUrl.textContent = data.url || 'N/A';
+                    statusBar.textContent = '✅ Đã lấy link thành công!';
+                    statusBar.className = 'status-bar success';
+                }
+            } catch (err) {
+                statusBar.textContent = 'Lỗi kết nối server';
+                statusBar.className = 'status-bar error';
+            } finally {
+                crawlBtn.classList.remove('loading');
+                crawlBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>
